@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_session
-from app.schemas.ai_schema import AIEmailAnalysisRead
+from app.schemas.ai_schema import AnalyzeEmailResult
 from app.services.email_analysis_workflow import analyze_email_and_store
 
 router = APIRouter()
@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post(
     "/emails/{email_id}/analyze",
-    response_model=AIEmailAnalysisRead,
+    response_model=AnalyzeEmailResult,
     status_code=status.HTTP_201_CREATED,
 )
 async def analyze_email_endpoint(

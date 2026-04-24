@@ -5,6 +5,10 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr
 from sqlmodel import SQLModel
 
+from app.schemas.email_schema import EmailRead
+from app.schemas.reply_schema import SentReplyRead
+from app.schemas.workflow_schema import WorkflowItemRead
+
 
 class ExtractedEntities(BaseModel):
     customer_email_in_body: EmailStr | None = None
@@ -54,4 +58,16 @@ class AIEmailAnalysisRead(AIEmailAnalysisBase):
     id: UUID
     email_id: UUID
     analyzed_at: datetime
-    
+
+
+class AnalyzeEmailResult(SQLModel):
+    analysis: AIEmailAnalysisRead
+    workflow: WorkflowItemRead
+    reply: SentReplyRead
+
+
+class ProcessEmailResult(SQLModel):
+    email: EmailRead
+    analysis: AIEmailAnalysisRead
+    workflow: WorkflowItemRead
+    reply: SentReplyRead
