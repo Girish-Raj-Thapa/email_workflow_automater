@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from sqlmodel import SQLModel
 
 from app.schemas.email_schema import EmailRead
-from app.schemas.reply_schema import SentReplyRead
+from app.schemas.reply_schema import ReplyRead
 from app.schemas.workflow_schema import WorkflowItemRead
 
 
@@ -19,7 +19,7 @@ class ExtractedEntities(BaseModel):
         "bank_transfer",
         "paypal",
         "unknown",
-    ] = "unknown"
+    ] | None = None
     affected_feature: str | None = None
     subscription_reference: str | None = None
 
@@ -60,14 +60,24 @@ class AIEmailAnalysisRead(AIEmailAnalysisBase):
     analyzed_at: datetime
 
 
-class AnalyzeEmailResult(SQLModel):
+class AnalyzeEmailResult(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     analysis: AIEmailAnalysisRead
-    workflow: WorkflowItemRead
-    reply: SentReplyRead
+    workflow: WorkflowItemRead | None = None
+    reply: ReplyRead | None = None
+    filtered: bool = False
+    filter_reason: str | None = None
 
 
-class ProcessEmailResult(SQLModel):
+class ProcessEmailResult(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     email: EmailRead
     analysis: AIEmailAnalysisRead
-    workflow: WorkflowItemRead
-    reply: SentReplyRead
+    workflow: WorkflowItemRead | None = None
+    reply: ReplyRead | None = None
+    filtered: bool = False
+    filter_reason: str | None = None
+    auto_send_executed: bool = False
+    auto_send_reason: str | None = None

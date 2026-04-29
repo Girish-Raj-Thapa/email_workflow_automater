@@ -21,4 +21,9 @@ async def process_email_from_submission(
         "analysis": result["analysis"],
         "workflow": result["workflow"],
         "reply": result["reply"],
+        "filtered": result.get("filtered", False),
+        "filter_reason": result.get("filter_reason"),
+        "auto_send_executed": result.get("auto_send_executed", False),
+        "auto_send_reason": result.get("auto_send_reason"),
     }
+    

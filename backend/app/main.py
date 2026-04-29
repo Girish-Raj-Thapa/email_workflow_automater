@@ -1,4 +1,5 @@
-from contextlib import asynccontextmanager
+import asyncio
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -11,13 +12,25 @@ from app.core.exceptions import (
     ConflictError,
     NotFoundError,
 )
-from app.db.init_db import init_db
+from app.services.mail_sync_runner import mail_sync_loop
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
-    yield
+    stop_event = asyncio.Event()
+    sync_task = None
+
+    if settings.mail_sync_enabled:
+        sync_task = asyncio.create_task(mail_sync_loop(stop_event))
+
+    try:
+        yield
+    finally:
+        stop_event.set()
+        if sync_task is not None:
+            sync_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await sync_task
 
 
 app = FastAPI(
